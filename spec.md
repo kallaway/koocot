@@ -23,42 +23,139 @@ First iteration will include just the methods to create recipes and get the list
 
 ## API Endpoint (TBD)
 
-### /add
-
-Gets a POST request (?) with the Recipe object, and should know what user it is associated with. Not sure if we should send the Recipe object, or just some information needed to create it and then the app would return the Recipe object.
-
-The app should also let the user know if the request was a success (potentially return back the Recipe object), or 
-
-
-### /recipes 
-
-It should receive a POST (?) request with the following info (After that it should send back a list of recipes):
-
-RecipeList request:
+### Data structures
+Recipe data structure has the following keys:
 {
-  
+  id: string,
+  name: string
+  description: string
+  owner: UserJson,
+  ingredients: ArrayOfIngredientJson,
+  instructions: ArrayOfInstructionJson,
+  categories: ArrayOfCategoryJson
+}
 }
 
-### /delete
 
-This endpoint is for deleting recipes. (probably based on ID of the recipe?)
-
-
-## Structs (TBD)
-
-// Intentionally keeping this simple, since we want to make it very easy for users to add recipes.
-Recipe {
-  URL string
-   
-  Rating int (optional, 0-10)
-  
+Example data structure blob for a recipe:
+```
+{
+  id: "uuid1",
+  name: "Gooseberry jam",
+  description: "This is grandma's favourite gooseberry jam",
+  owner: { id: "uuid1000", username: "akallaway", name: "Alex" },
+  ingredients: [{ ingredient: 1, name: "Gooseberries", quantity: "1/4 cup"}, {ingredient: 2, name: "Sugar", quantity: "1 cup"}, ...],
+  instructions: [{ step: 1, title: "Mash gooseberries", details: "Mash gooseberries until they're crushed nice and good"}, ...],
+  categories: [{ id: "uuid5000", name: "Breakfast" }, { id: "uuid5001", name: "Dessert" }, ... ]
 }
+```
 
-User {
-  email string
-  name string
-  password string (some sort of hash?)
+Example User json:
+```
+{ id: "uuid2", username: "akallaway", name: "Alex" }
+```
+
+Example Ingredient json:
+```
+{ ingredient: 1, name: "Gooseberries", quantity: "1/4 cup"}
+```
+
+Example Instruction json:
+```
+{ step: 1, title: "Mash gooseberries", details: "Mash gooseberries until they're crushed nice and good"}
+```
+
+Example Category json: 
+```
+{ id: "uuid5001", name: "Breakfast" }
+```
+
+### Headers
+
+The headers will denote the ID of the user. In phase 2 this will be a cookie or token that represents this user. 
+
+In phase 1 (so as not to implement authentication) send header: X-Auth-User-Id: 1
+
+In phase 2 with full auth send header: X-Auth-User-Id: token-uuid
+
+### Add a recipe
+
+Request:
+POST /recipes
+
+data:
+```
+{
+  name: "Gooseberry jam",
+  description: "This is grandma's favourite gooseberry jam",
+  ingredients: [{ ingredient: 1, name: "Gooseberries", quantity: "1/4 cup"}, {ingredient: 2, name: "Sugar", quantity: "1 cup"}, ...],
+  instructions: [{ step: 1, title: "Mash gooseberries", details: "Mash gooseberries until they're crushed nice and good"}, ...]
 }
+```
+
+Response (success=201):
+```
+{
+  id: "uuid1",
+  name: "Gooseberry jam",
+  description: "This is grandma's favourite gooseberry jam",
+  owner: { id: "uuid1000", username: "akallaway", name: "Alex" },
+  ingredients: [{ ingredient: 1, name: "Gooseberries", quantity: "1/4 cup"}, {ingredient: 2, name: "Sugar", quantity: "1 cup"}, ...],
+  instructions: [{ step: 1, title: "Mash gooseberries", details: "Mash gooseberries until they're crushed nice and good"}, ...]
+}
+```
+
+Note: server returns full response with created id and owner populated.
+
+### List recipes
+
+Request:
+
+GET /recipes
+
+Response (success=200):
+```
+{
+  [ { id: "uuid1", ... }, { id: "uuid2" ... }, ...]
+}
+```
+
+### Update a recipe
+
+Request:
+
+PUT /recipes/uuid1
+
+data:
+```
+{
+  id: "uuid1",
+  name: "Delicious gooseberry jam",
+  description: "This is grandma's favourite gooseberry jam",
+}
+```
+
+Response (success=200): 
+```
+{
+  id: "uuid1",
+  name: "Gooseberry jam",
+  description: "This is grandma's favourite gooseberry jam",
+  owner: { id: "uuid1000", username: "akallaway", name: "Alex" },
+  ingredients: [{ ingredient: 1, name: "Gooseberries", quantity: "1/4 cup"}, {ingredient: 2, name: "Sugar", quantity: "1 cup"}, ...],
+  instructions: [{ step: 1, title: "Mash gooseberries", details: "Mash gooseberries until they're crushed nice and good"}, ...]
+}
+```
+
+Note: if the key is not present in the data, that key is not updated.
+
+### Delete recipe
+
+Request:
+
+DELETE /recipes/uuid1
+
+Response (success=200|204)
 
 ### FoodCategories to use (TBD)
 
